@@ -91,87 +91,105 @@ var gameState = {
 	play : true,
 	gameOver : false
 };
-var bullet = {
-	x : player.x + player.width / 2,
-	y : player.y + player.height / 2,
-	width : 4,
-	height : 4,
-	dy : 0,
-	dx : 0,
-	speed : 5,
-	flying : false,
-	color : "#111111",
-	rect : new Rect(this.x, this.y, this.width, this.height),
-	update : function(keys) {
-		this.rect.x = this.x;
-		this.rect.y = this.y;
-		this.rect.width = this.width;
-		this.rect.height = this.height;
-		if (this.flying){
-			this.x += this.speed * this.dx;
-			this.y += this.speed * this.dy;
-		}
-		else {
-			this.x = player.x + player.width / 2;
-			this.y = player.y + player.height / 2;
-		}
-		
-		if (keys.mousePressed && !this.flying) {
-			this.flying = true;
+
+var bullet = function(x, y, size) {
+	this.x = x;
+	this.y = y;
+	this.dx = 0;
+	this.dy = 0;
+	this.speed = 5;
+	this.width = size;
+	this.height = size;
+	this.isFlying = false;
+	this.color = "#222222";
+	this.rect = new Rect(x, y, size, size);
+} 
+
+var bullets = [];
+for (var i = 0; i < 10; i++){
+	bullets[i] = new bullet(player.x + player.width / 2, player.y + player.height / 2, 4);
+}
+
+function drawBullets(){
+	for (var i = 0; i < bullets.length; i++) {
+		drawRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height, bullets[i].color);
+	};
+}
+
+function updateBullet(){
+	for (var i = 0; i < bullets.length; i++){
+		bullets[i].rect.x = bullets[i].x;
+		bullets[i].rect.y = bullets[i].y;
+		if (keys.mousePressed && !bullets[i].isFlying){
+			keys.mousePressed = false;
+			bullets[i].isFlying = true;
 			var deltaX = mouse.x - (player.x + player.width / 2);
 			var deltaY = mouse.y - (player.y + player.height / 2);
 			if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) === Math.abs(deltaX)){
 				if (deltaX > 0){
-					this.dx = 1;
-					this.dy = this.dx / deltaX * deltaY;
+					bullets[i].dx = 1;
+					bullets[i].dy = bullets[i].dx / deltaX * deltaY;
 				}
 				else {
-					this.dx = -1;
-					this.dy = this.dx / deltaX * deltaY;
+					bullets[i].dx = -1;
+					bullets[i].dy = bullets[i].dx / deltaX * deltaY;
 				}
 			}
 			else {
 				if (deltaY < 0){
-					this.dy = -1;
-					this.dx = this.dy / deltaY * deltaX;
+					bullets[i].dy = -1;
+					bullets[i].dx = bullets[i].dy / deltaY * deltaX;
 				}
 				else {
-					this.dy = 1;
-					this.dx = this.dy / deltaY * deltaX;
+					bullets[i].dy = 1;
+					bullets[i].dx = bullets[i].dy / deltaY * deltaX;
 				}
 			}
-			
 		}
-		if (overlaps(leftBorder, this.rect)){
-			this.flying = false;
-			this.x = player.x + player.width / 2;
-			this.y = player.y + player.height / 2;
-			this.dx = 0;
-			this.dy = 0;
+		if (bullets[i].x < 0 || bullets[i].x > canvas.width || bullets[i].y < 0 || bullets[i].y > canvas.height) {
+			bullets[i].isFlying = false;
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
+		}	
+		if (bullets[i].isFlying) {
+			bullets[i].x += bullets[i].dx * bullets[i].speed;
+			bullets[i].y += bullets[i].dy * bullets[i].speed;
 		}
-		if (overlaps(rightBorder, this.rect)){
-			this.flying = false;
-			this.x = player.x + player.width / 2;
-			this.y = player.y + player.height / 2;
-			this.dx = 0;
-			this.dy = 0;
+		else {
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
 		}
-		if (overlaps(topBorder, this.rect)){
-			this.flying = false;
-			this.x = player.x + player.width / 2;
-			this.y = player.y + player.height / 2;
-			this.dx = 0;
-			this.dy = 0;
+		if (overlaps(leftBorder, bullets[i].rect)){
+			bullets[i].isFlying = false;
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
+			bullets[i].dx = 0;
+			bullets[i].dy = 0;
 		}
-		if (overlaps(bottomBorder, this.rect)){
-			this.flying = false;
-			this.x = player.x + player.width / 2;
-			this.y = player.y + player.height / 2;
-			this.dx = 0;
-			this.dy = 0;
+		if (overlaps(rightBorder, bullets[i].rect)){
+			bullets[i].isFlying = false;
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
+			bullets[i].dx = 0;
+			bullets[i].dy = 0;
+		}
+		if (overlaps(topBorder, bullets[i].rect)){
+			bullets[i].isFlying = false;
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
+			bullets[i].dx = 0;
+			bullets[i].dy = 0;
+		}
+		if (overlaps(bottomBorder, bullets[i].rect)){
+			bullets[i].isFlying = false;
+			bullets[i].x = player.x + player.width / 2;
+			bullets[i].y = player.y + player.height / 2;
+			bullets[i].dx = 0;
+			bullets[i].dy = 0;
 		}
 	}
-};
+}
+
 var enemies = [];
 for (var i = 0; i < enemyQ; i++){
 	enemies[i] = new Rect(Math.floor(Math.random() * (canvas.width - 20)), Math.floor(Math.random() * (canvas.height - 20)), 20, 20);
@@ -189,6 +207,9 @@ for (var i = 0; i < enemyQ; i++){
 
 function updateEnemies() {
 	for (var i = 0; i < enemies.length; i++){
+		if (overlaps(player.rect, enemies[i])){
+			gameState.play = false;
+		}
 		enemies[i].x += enemies[i].speed * enemies[i].dx;
 		enemies[i].y += enemies[i].speed * enemies[i].dy;
 		if (overlaps(leftBorder, enemies[i])){
@@ -203,20 +224,30 @@ function updateEnemies() {
 		if (overlaps(bottomBorder, enemies[i])){
 			enemies[i].dy *= -1;
 		}
-		if (overlaps(bullet.rect, enemies[i])){
-			enemies.splice(i, 1);
-			bullet.flying = false;
-			bullet.x = player.x + player.width / 2;
-			bullet.y = player.y + player.height / 2;
-			bullet.dx = 0;
-			bullet.dy = 0;
-			for (var j = 0; j < enemies.length; j++){
-				enemies[j].speed += 0.3;
+		for (var k = 0; k < bullets.length; k++) {
+			if (!bullets[k].isFlying)
+				continue;
+			if (overlaps(bullets[k].rect, enemies[i])){
+				enemies.splice(i, 1);
+				bullets[k].isFlying = false;
+				bullets[k].x = player.x + player.width / 2;
+				bullets[k].y = player.y + player.height / 2;
+				bullets[k].dx = 0;
+				bullets[k].dy = 0;
+				for (var j = 0; j < enemies.length; j++){
+					enemies[j].speed += 0.3;
+					if (Math.round(Math.random()) == 0){
+						enemies[j].dx = Math.round(Math.random()) * 2 - 1;
+						enemies[j].dy = Math.random() * 2 - 1;
+					}
+					else {
+						enemies[j].dy = Math.round(Math.random()) * 2 - 1;
+						enemies[j].dx = Math.random() * 2 - 1;
+					}
+				}
 			}
-		}
-		if (overlaps(player.rect, enemies[i])){
-			gameState.play = false;
-		}
+		}		
+		
 
 	}
 }
@@ -348,15 +379,15 @@ function mainLoop() {
 	if (gameState.play){
 		if (!(enemies.length === 0)) {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			drawRect(bullet.x, bullet.y, bullet.width, bullet.height, bullet.color);
+			updateBullet();
+			updateEnemies();
+			drawBullets();
 			drawRect(player.x, player.y, player.width, player.height, player.color);
 			for (var i = 0; i < enemies.length; i++){
 				drawRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height, enemies[i].color);
 			}		
 			drawBorder("#222222");
 			player.update(keys);
-			bullet.update(keys);
-			updateEnemies();
 		}
 		else {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
