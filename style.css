@@ -1,0 +1,34 @@
+canvas { 
+	background: #eeeeee;
+	display: block;
+	margin: 0 auto;
+}
+
+body {
+	background-color: #222222;
+}
+
+.headtitle {
+	width: 100%;
+	text-align: center;
+	font-size: 26px;
+	font-family: Verdana;
+	color: #dddddd;
+	background-color: #222222;
+}
+
+.game {
+	width: 100%;
+	text-align: center;
+	font-size: 26px;
+	font-family: Verdana;
+	background-color: #222222;
+}
+
+.bot {
+	width: 100%;
+	text-align: center;
+	font-size: 26px;
+	font-family: Verdana;
+	background-color: #131313;
+}
